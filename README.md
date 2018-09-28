@@ -5,7 +5,7 @@ _This is a rewrite of [noble-uwp](https://github.com/jasongin/noble-uwp) using t
 ## System Requirements
  * Node.js v6.14.2 or later.
  * Windows 10 build 10.0.15063 or later
- * Windows 10 SDK build 10.0.15063
+ * Windows 10 SDK build 10.0.17134.0
 
 ## Usage
 Simply require `noble-winrt` instead of `noble`:
