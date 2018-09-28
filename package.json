@@ -22,7 +22,8 @@
     "install": "node-pre-gyp install --fallback-to-build",
     "test": "node --napi-modules ./test/ci_test.js",
     "test:bindings": "node --napi-modules ./test/test_binding.js",
-    "test:battery": "node --napi-modules ./test/test_battery.js"
+    "test:battery": "node --napi-modules ./test/test_battery.js",
+    "build:test": "node-pre-gyp install --fallback-to-build=false"
   },
   "binary": {
     "module_name": "noble_winrt",
