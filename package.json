@@ -1,7 +1,7 @@
 {
   "name": "noble-winrt",
-  "description": "Noble (Node.js Bluetooth LE) bindings using CoreBluetooth API",
-  "version": "0.0.1",
+  "description": "Noble (Node.js Bluetooth LE) bindings for Windows 10",
+  "version": "0.0.2",
   "author": "gv@timeular.com",
   "license": "MIT",
   "repository": {
@@ -18,20 +18,15 @@
   "dependencies": {
     "napi-thread-safe-callback": "0.0.6",
     "noble": "^1.9.1",
-    "node-addon-api": "^1.1.0",
-    "node-pre-gyp": "^0.10.0"
+    "node-addon-api": "1.6.2",
+    "prebuild-install": "^5.0.0",
+    "bindings": "~1.3.0"
   },
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build",
-    "test": "node --napi-modules ./test/ci_test.js",
+    "install": "prebuild-install --force || node-gyp rebuild",
+    "ci": "node --napi-modules ./test/ci_test.js",
     "test:bindings": "node --napi-modules ./test/test_binding.js",
     "test:battery": "node --napi-modules ./test/test_battery.js",
-    "build:test": "node-pre-gyp install --fallback-to-build=false"
-  },
-  "binary": {
-    "module_name": "noble_winrt",
-    "module_path": "./native/",
-    "host": "https://github.com/Timeular/noble-winrt/releases/download/",
-    "remote_path": "{version}"
+    "build:source": "node-gyp rebuild"
   }
 }
