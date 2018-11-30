@@ -27,6 +27,6 @@ build_script:
       if ($publish_binary -Eq "1") {
         yarn global add prebuild 2>&1 | write-host
         prebuild -t 6.14.4 -t 8.12.0 -r node --upload $env:prebuild_upload 2>&1 | write-host
-        prebuild -t 2.0.0 -r electron --upload $env:prebuild_upload 2>&1 | write-host
+        prebuild -t 2.0.0 -t 3.0.0 -r electron --upload $env:prebuild_upload 2>&1 | write-host
       }
       echo "done."
