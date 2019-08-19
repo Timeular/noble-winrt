@@ -7,10 +7,11 @@
 #include "napi_winrt.h"
 
 #include <winrt/Windows.Devices.Bluetooth.GenericAttributeProfile.h>
+#include <rpc.h>
 
 using namespace winrt::Windows::Devices::Bluetooth;
 
-UUID napiToUuid(Napi::String string)
+winrt::guid napiToUuid(Napi::String string)
 {
     std::string str = string.Utf8Value();
     if (str.size() == 32)
@@ -27,12 +28,14 @@ UUID napiToUuid(Napi::String string)
     }
     UUID uuid;
     UuidFromString((RPC_CSTR)str.c_str(), &uuid);
-    return uuid;
+    std::array<uint8_t, 8> data4;
+    std::copy_n(uuid.Data4, data4.size(), data4.begin());
+    return winrt::guid(uuid.Data1, uuid.Data2, uuid.Data3, data4);
 }
 
-std::vector<UUID> napiToUuidArray(Napi::Array array)
+std::vector<winrt::guid> napiToUuidArray(Napi::Array array)
 {
-    std::vector<UUID> uuids;
+    std::vector<winrt::guid> uuids;
     for (size_t i = 0; i < array.Length(); i++)
     {
         Napi::Value val = array[i];
@@ -54,13 +57,13 @@ int napiToNumber(Napi::Number number)
     return number.Int32Value();
 }
 
-std::vector<UUID> getUuidArray(const Napi::Value& value)
+std::vector<winrt::guid> getUuidArray(const Napi::Value& value)
 {
     if (value.IsArray())
     {
         return napiToUuidArray(value.As<Napi::Array>());
     }
-    return std::vector<UUID>();
+    return std::vector<winrt::guid>();
 }
 
 bool getBool(const Napi::Value& value, bool def)

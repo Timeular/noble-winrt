@@ -4,14 +4,10 @@
 #include <iomanip>
 
 #include <winrt\Windows.Devices.Bluetooth.h>
-#include <Rpc.h>
 
 std::string ws2s(const wchar_t* wstr)
 {
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, lstrlenW(wstr), nullptr, 0, nullptr, nullptr);
-    std::string strTo(size_needed, 0);
-    WideCharToMultiByte(CP_UTF8, 0, wstr, lstrlenW(wstr), &strTo[0], size_needed, NULL, NULL);
-    return strTo;
+    return winrt::to_string(wstr);
 }
 
 std::string formatBluetoothAddress(unsigned long long BluetoothAddress)
@@ -38,7 +34,7 @@ std::string formatBluetoothUuid(unsigned long long BluetoothAddress)
     return ret.str();
 }
 
-std::string toStr(GUID uuid)
+std::string toStr(winrt::guid uuid)
 {
     try
     {
@@ -54,14 +50,14 @@ std::string toStr(GUID uuid)
     catch (...)
     {
     }
-    RPC_CSTR szUuid = nullptr;
-    if (::UuidToStringA(&uuid, &szUuid) == RPC_S_OK)
-    {
-        std::string ret((char*)szUuid);
-        ::RpcStringFreeA(&szUuid);
-        return ret;
-    }
-    return "invalid-guid";
+
+    // taken from winrt/base.h
+    char buffer[38];
+    // 00000000-0000-0000-0000-000000000000
+    sprintf_s(buffer, "%08x-%04hx-%04hx-%02hhx%02hhx-%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx",
+      uuid.Data1, uuid.Data2, uuid.Data3, uuid.Data4[0], uuid.Data4[1],
+      uuid.Data4[2], uuid.Data4[3], uuid.Data4[4], uuid.Data4[5], uuid.Data4[6], uuid.Data4[7]);
+    return std::string(buffer);
 }
 
 #define SET_VAL(prop, val, str) \

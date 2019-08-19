@@ -4,9 +4,9 @@
 #include "winrt/base.h"
 #include "peripheral.h"
 
-std::vector<UUID> getUuidArray(const Napi::Value& value);
+std::vector<winrt::guid> getUuidArray(const Napi::Value& value);
 bool getBool(const Napi::Value& value, bool def);
 
-UUID napiToUuid(Napi::String string);
-Data napiToData(Napi::Buffer<byte> buffer);
+winrt::guid napiToUuid(Napi::String string);
+Data napiToData(Napi::Buffer<unsigned char> buffer);
 int napiToNumber(Napi::Number number);

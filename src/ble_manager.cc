@@ -112,8 +112,9 @@ void BLEManager::OnRadio(Radio& radio)
     }
 }
 
-void BLEManager::Scan(const std::vector<UUID>& serviceUUIDs, bool allowDuplicates)
+void BLEManager::Scan(const std::vector<winrt::guid>& serviceUUIDs, bool allowDuplicates)
 {
+    mAdvertismentMap.clear();
     mAllowDuplicates = allowDuplicates;
     BluetoothLEAdvertisementFilter filter = BluetoothLEAdvertisementFilter();
     BluetoothLEAdvertisement advertisment = BluetoothLEAdvertisement();
@@ -138,6 +139,7 @@ void BLEManager::OnScanResult(BluetoothLEAdvertisementWatcher watcher,
 
     if (mDeviceMap.find(uuid) == mDeviceMap.end())
     {
+        mAdvertismentMap.insert(uuid);
         auto peripheral =
             PeripheralWinrt(bluetoothAddress, advertismentType, rssi, args.Advertisement());
         mEmit.Scan(uuid, rssi, peripheral);
@@ -147,8 +149,9 @@ void BLEManager::OnScanResult(BluetoothLEAdvertisementWatcher watcher,
     {
         PeripheralWinrt& peripheral = mDeviceMap[uuid];
         peripheral.Update(rssi, args.Advertisement());
-        if (mAllowDuplicates)
+        if (mAllowDuplicates || mAdvertismentMap.find(uuid) == mAdvertismentMap.end())
         {
+            mAdvertismentMap.insert(uuid);
             mEmit.Scan(uuid, rssi, peripheral);
         }
     }
@@ -173,8 +176,15 @@ bool BLEManager::Connect(const std::string& uuid)
         return false;
     }
     PeripheralWinrt& peripheral = mDeviceMap[uuid];
-    auto completed = bind2(this, &BLEManager::OnConnected, uuid);
-    BluetoothLEDevice::FromBluetoothAddressAsync(peripheral.bluetoothAddress).Completed(completed);
+    if (!peripheral.device.has_value())
+    {
+        auto completed = bind2(this, &BLEManager::OnConnected, uuid);
+        BluetoothLEDevice::FromBluetoothAddressAsync(peripheral.bluetoothAddress).Completed(completed);
+    }
+    else
+    {
+        mEmit.Connected(uuid);
+    }
     return true;
 }
 
@@ -244,7 +254,8 @@ bool BLEManager::UpdateRSSI(const std::string& uuid)
     return true;
 }
 
-bool BLEManager::DiscoverServices(const std::string& uuid, const std::vector<UUID>& serviceUUIDs)
+bool BLEManager::DiscoverServices(const std::string& uuid,
+                                  const std::vector<winrt::guid>& serviceUUIDs)
 {
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
@@ -257,7 +268,7 @@ bool BLEManager::DiscoverServices(const std::string& uuid, const std::vector<UUI
 
 void BLEManager::OnServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> asyncOp,
                                       AsyncStatus status, const std::string uuid,
-                                      const std::vector<UUID> serviceUUIDs)
+                                      const std::vector<winrt::guid> serviceUUIDs)
 {
     if (status == AsyncStatus::Completed)
     {
@@ -280,8 +291,8 @@ void BLEManager::OnServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> 
     }
 }
 
-bool BLEManager::DiscoverIncludedServices(const std::string& uuid, const UUID& serviceUuid,
-                                          const std::vector<UUID>& serviceUUIDs)
+bool BLEManager::DiscoverIncludedServices(const std::string& uuid, const winrt::guid& serviceUuid,
+                                          const std::vector<winrt::guid>& serviceUUIDs)
 {
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
@@ -306,7 +317,7 @@ bool BLEManager::DiscoverIncludedServices(const std::string& uuid, const UUID& s
 void BLEManager::OnIncludedServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> asyncOp,
                                               AsyncStatus status, const std::string uuid,
                                               const std::string serviceId,
-                                              const std::vector<UUID> serviceUUIDs)
+                                              const std::vector<winrt::guid> serviceUUIDs)
 {
     if (status == AsyncStatus::Completed)
     {
@@ -329,8 +340,8 @@ void BLEManager::OnIncludedServicesDiscovered(IAsyncOperation<GattDeviceServices
     }
 }
 
-bool BLEManager::DiscoverCharacteristics(const std::string& uuid, const UUID& serviceUuid,
-                                         const std::vector<UUID>& characteristicUUIDs)
+bool BLEManager::DiscoverCharacteristics(const std::string& uuid, const winrt::guid& serviceUuid,
+                                         const std::vector<winrt::guid>& characteristicUUIDs)
 {
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
@@ -355,7 +366,7 @@ bool BLEManager::DiscoverCharacteristics(const std::string& uuid, const UUID& se
 void BLEManager::OnCharacteristicsDiscovered(IAsyncOperation<GattCharacteristicsResult> asyncOp,
                                              AsyncStatus status, const std::string uuid,
                                              const std::string serviceId,
-                                             const std::vector<UUID> characteristicUUIDs)
+                                             const std::vector<winrt::guid> characteristicUUIDs)
 {
     if (status == AsyncStatus::Completed)
     {
@@ -379,8 +390,8 @@ void BLEManager::OnCharacteristicsDiscovered(IAsyncOperation<GattCharacteristics
     }
 }
 
-bool BLEManager::Read(const std::string& uuid, const UUID& serviceUuid,
-                      const UUID& characteristicUuid)
+bool BLEManager::Read(const std::string& uuid, const winrt::guid& serviceUuid,
+                      const winrt::guid& characteristicUuid)
 {
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
@@ -431,8 +442,9 @@ void BLEManager::OnRead(IAsyncOperation<GattReadResult> asyncOp, AsyncStatus sta
     }
 }
 
-bool BLEManager::Write(const std::string& uuid, const UUID& serviceUuid,
-                       const UUID& characteristicUuid, const Data& data, bool withoutResponse)
+bool BLEManager::Write(const std::string& uuid, const winrt::guid& serviceUuid,
+                       const winrt::guid& characteristicUuid, const Data& data,
+                       bool withoutResponse)
 {
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
@@ -489,8 +501,8 @@ GetDescriptorValue(GattCharacteristicProperties properties)
     }
 }
 
-bool BLEManager::Notify(const std::string& uuid, const UUID& serviceUuid,
-                        const UUID& characteristicUuid, bool on)
+bool BLEManager::Notify(const std::string& uuid, const winrt::guid& serviceUuid,
+                        const winrt::guid& characteristicUuid, bool on)
 {
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
@@ -582,8 +594,8 @@ void BLEManager::OnValueChanged(GattCharacteristic characteristic,
     mEmit.Read(deviceUuid, serviceUuid, characteristicUuid, data, true);
 }
 
-bool BLEManager::DiscoverDescriptors(const std::string& uuid, const UUID& serviceUuid,
-                                     const UUID& characteristicUuid)
+bool BLEManager::DiscoverDescriptors(const std::string& uuid, const winrt::guid& serviceUuid,
+                                     const winrt::guid& characteristicUuid)
 {
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
@@ -630,8 +642,8 @@ void BLEManager::OnDescriptorsDiscovered(IAsyncOperation<GattDescriptorsResult> 
     }
 }
 
-bool BLEManager::ReadValue(const std::string& uuid, const UUID& serviceUuid,
-                           const UUID& characteristicUuid, const UUID& descriptorUuid)
+bool BLEManager::ReadValue(const std::string& uuid, const winrt::guid& serviceUuid,
+                           const winrt::guid& characteristicUuid, const winrt::guid& descriptorUuid)
 {
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
@@ -684,9 +696,9 @@ void BLEManager::OnReadValue(IAsyncOperation<GattReadResult> asyncOp, AsyncStatu
     }
 }
 
-bool BLEManager::WriteValue(const std::string& uuid, const UUID& serviceUuid,
-                            const UUID& characteristicUuid, const UUID& descriptorUuid,
-                            const Data& data)
+bool BLEManager::WriteValue(const std::string& uuid, const winrt::guid& serviceUuid,
+                            const winrt::guid& characteristicUuid,
+                            const winrt::guid& descriptorUuid, const Data& data)
 {
     CHECK_DEVICE();
     IFDEVICE(device, uuid)

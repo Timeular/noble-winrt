@@ -8,6 +8,7 @@
 #pragma once
 
 #include <winrt/Windows.Devices.Bluetooth.GenericAttributeProfile.h>
+#include "winrt_guid.h"
 
 using namespace winrt::Windows::Devices::Bluetooth::GenericAttributeProfile;
 
@@ -15,8 +16,8 @@ struct Key
 {
 public:
     std::string uuid;
-    UUID serviceUuid;
-    UUID characteristicUuid;
+    winrt::guid serviceUuid;
+    winrt::guid characteristicUuid;
 
     bool operator==(const Key& other) const;
 };
@@ -27,15 +28,13 @@ namespace std
     {
         std::size_t operator()(const Key& k) const
         {
-            RPC_STATUS status;
-            auto serviceHash = UuidHash((UUID*)&k.serviceUuid, &status);
-            auto characteristicHash = UuidHash((UUID*)&k.characteristicUuid, &status);
-
+            auto serviceHash = std::hash<winrt::guid>()(k.serviceUuid);
+            auto characteristicHash = std::hash<winrt::guid>()(k.characteristicUuid);
             return ((std::hash<std::string>()(k.uuid) ^ (serviceHash << 1)) >> 1) ^
                 (characteristicHash << 1);
         }
     };
-}  // namespace std
+} // namespace std
 
 class NotifyMap
 {

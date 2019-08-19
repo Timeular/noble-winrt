@@ -117,7 +117,7 @@ Napi::Value NobleWinrt::DiscoverServices(const Napi::CallbackInfo& info)
     CHECK_MANAGER()
     ARG1(String)
     auto uuid = info[0].As<Napi::String>().Utf8Value();
-    std::vector<UUID> uuids = getUuidArray(info[1]);
+    std::vector<winrt::guid> uuids = getUuidArray(info[1]);
     manager->DiscoverServices(uuid, uuids);
     return Napi::Value();
 }
@@ -129,7 +129,7 @@ Napi::Value NobleWinrt::DiscoverIncludedServices(const Napi::CallbackInfo& info)
     ARG2(String, String)
     auto uuid = info[0].As<Napi::String>().Utf8Value();
     auto service = napiToUuid(info[1].As<Napi::String>());
-    std::vector<UUID> uuids = getUuidArray(info[2]);
+    std::vector<winrt::guid> uuids = getUuidArray(info[2]);
     manager->DiscoverIncludedServices(uuid, service, uuids);
     return Napi::Value();
 }
@@ -141,7 +141,7 @@ Napi::Value NobleWinrt::DiscoverCharacteristics(const Napi::CallbackInfo& info)
     ARG2(String, String)
     auto uuid = info[0].As<Napi::String>().Utf8Value();
     auto service = napiToUuid(info[1].As<Napi::String>());
-    std::vector<UUID> characteristics = getUuidArray(info[2]);
+    std::vector<winrt::guid> characteristics = getUuidArray(info[2]);
     manager->DiscoverCharacteristics(uuid, service, characteristics);
     return Napi::Value();
 }
@@ -166,7 +166,7 @@ Napi::Value NobleWinrt::Write(const Napi::CallbackInfo& info)
     auto uuid = info[0].As<Napi::String>().Utf8Value();
     auto service = napiToUuid(info[1].As<Napi::String>());
     auto characteristic = napiToUuid(info[2].As<Napi::String>());
-    auto data = napiToData(info[3].As<Napi::Buffer<byte>>());
+    auto data = napiToData(info[3].As<Napi::Buffer<unsigned char>>());
     auto withoutResponse = info[4].As<Napi::Boolean>().Value();
     manager->Write(uuid, service, characteristic, data, withoutResponse);
     return Napi::Value();
@@ -219,7 +219,7 @@ Napi::Value NobleWinrt::WriteValue(const Napi::CallbackInfo& info)
     auto service = napiToUuid(info[1].As<Napi::String>());
     auto characteristic = napiToUuid(info[2].As<Napi::String>());
     auto descriptor = napiToUuid(info[3].As<Napi::String>());
-    auto data = napiToData(info[4].As<Napi::Buffer<byte>>());
+    auto data = napiToData(info[4].As<Napi::Buffer<unsigned char>>());
     manager->WriteValue(uuid, service, characteristic, descriptor, data);
     return Napi::Value();
 }
@@ -242,7 +242,7 @@ Napi::Value NobleWinrt::WriteHandle(const Napi::CallbackInfo& info)
     ARG3(String, Number, Buffer)
     auto uuid = info[0].As<Napi::String>().Utf8Value();
     auto handle = napiToNumber(info[1].As<Napi::Number>());
-    auto data = napiToData(info[2].As<Napi::Buffer<byte>>());
+    auto data = napiToData(info[2].As<Napi::Buffer<unsigned char>>());
     manager->WriteHandle(uuid, handle, data);
     return Napi::Value();
 }
@@ -274,8 +274,8 @@ Napi::Function NobleWinrt::GetClass(Napi::Env env)
         NobleWinrt::InstanceMethod("discoverDescriptors", &NobleWinrt::DiscoverDescriptors),
         NobleWinrt::InstanceMethod("readValue", &NobleWinrt::ReadValue),
         NobleWinrt::InstanceMethod("writeValue", &NobleWinrt::WriteValue),
-        NobleWinrt::InstanceMethod("readHandle", &NobleWinrt::ReadValue),
-        NobleWinrt::InstanceMethod("writeHandle", &NobleWinrt::WriteValue),
+        NobleWinrt::InstanceMethod("readHandle", &NobleWinrt::ReadHandle),
+        NobleWinrt::InstanceMethod("writeHandle", &NobleWinrt::WriteHandle),
         NobleWinrt::InstanceMethod("cleanUp", &NobleWinrt::CleanUp),
     });
     // clang-format on
@@ -294,7 +294,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
         // electron already initialized the COM library
         if (hresult.code() != RPC_E_CHANGED_MODE)
         {
-            wprintf(L"Failed initializing apartment: %d %s", hresult.code(),
+            wprintf(L"Failed initializing apartment: %d %s", hresult.code().value,
                     hresult.message().c_str());
             Napi::TypeError::New(env, "Failed initializing apartment").ThrowAsJavaScriptException();
             return exports;

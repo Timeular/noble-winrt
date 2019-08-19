@@ -1,5 +1,5 @@
 # vs 2017 image because Windows SDK 10.0.15063.0 is not available on vs 2015 image
-image: Previous Visual Studio 2017
+image: Visual Studio 2017
 
 platform:
 - x86
@@ -26,7 +26,7 @@ build_script:
   - ps: |
       if ($publish_binary -Eq "1") {
         yarn global add prebuild 2>&1 | write-host
-        prebuild -t 6.14.4 -t 8.12.0 -r node --upload $env:prebuild_upload 2>&1 | write-host
-        prebuild -t 2.0.0 -t 3.0.0 -r electron --upload $env:prebuild_upload 2>&1 | write-host
+        prebuild -t 6.14.4 -t 8.12.0 -t 9.11.2 -t 10.16.1 -t 11.15.0 -t 12.7.0 -r node --upload $env:prebuild_upload 2>&1 | write-host
+        prebuild -t 2.0.0 -t 3.0.0 -t 4.0.4 -t 5.0.0 -t 6.0.0 -r electron --upload $env:prebuild_upload 2>&1 | write-host
       }
       echo "done."

@@ -11,15 +11,6 @@ using winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceSer
 using winrt::Windows::Foundation::AsyncStatus;
 using winrt::Windows::Foundation::IAsyncOperation;
 
-namespace std
-{
-    std::size_t hash<UUID>::operator()(const UUID& k) const
-    {
-        RPC_STATUS status;
-        return UuidHash((UUID*)&k, &status);
-    }
-}
-
 PeripheralWinrt::PeripheralWinrt(uint64_t bluetoothAddress,
                                  BluetoothLEAdvertisementType advertismentType, const int rssiValue,
                                  const BluetoothLEAdvertisement& advertisment)
@@ -91,7 +82,7 @@ void PeripheralWinrt::Disconnect()
 }
 
 void PeripheralWinrt::GetServiceFromDevice(
-    UUID serviceUuid, std::function<void(std::optional<GattDeviceService>)> callback)
+    winrt::guid serviceUuid, std::function<void(std::optional<GattDeviceService>)> callback)
 {
     if (device.has_value())
     {
@@ -127,7 +118,7 @@ void PeripheralWinrt::GetServiceFromDevice(
     }
 }
 
-void PeripheralWinrt::GetService(UUID serviceUuid,
+void PeripheralWinrt::GetService(winrt::guid serviceUuid,
                                  std::function<void(std::optional<GattDeviceService>)> callback)
 {
     auto it = cachedServices.find(serviceUuid);
@@ -142,7 +133,7 @@ void PeripheralWinrt::GetService(UUID serviceUuid,
 }
 
 void PeripheralWinrt::GetCharacteristicFromService(
-    GattDeviceService service, UUID characteristicUuid,
+    GattDeviceService service, winrt::guid characteristicUuid,
     std::function<void(std::optional<GattCharacteristic>)> callback)
 {
     service.GetCharacteristicsForUuidAsync(characteristicUuid, BluetoothCacheMode::Cached)
@@ -153,7 +144,7 @@ void PeripheralWinrt::GetCharacteristicFromService(
                 auto& characteristic = characteristics.Characteristics().First();
                 if (characteristic.HasCurrent())
                 {
-                    UUID serviceUuid = service.Uuid();
+                    winrt::guid serviceUuid = service.Uuid();
                     CachedService& cachedService = cachedServices[serviceUuid];
                     GattCharacteristic& c = characteristic.Current();
                     cachedService.characterisitics.insert(
@@ -175,7 +166,7 @@ void PeripheralWinrt::GetCharacteristicFromService(
 }
 
 void PeripheralWinrt::GetCharacteristic(
-    UUID serviceUuid, UUID characteristicUuid,
+    winrt::guid serviceUuid, winrt::guid characteristicUuid,
     std::function<void(std::optional<GattCharacteristic>)> callback)
 {
     auto it = cachedServices.find(serviceUuid);
@@ -209,7 +200,7 @@ void PeripheralWinrt::GetCharacteristic(
 }
 
 void PeripheralWinrt::GetDescriptorFromCharacteristic(
-    GattCharacteristic characteristic, UUID descriptorUuid,
+    GattCharacteristic characteristic, winrt::guid descriptorUuid,
     std::function<void(std::optional<GattDescriptor>)> callback)
 {
     characteristic.GetDescriptorsForUuidAsync(descriptorUuid, BluetoothCacheMode::Cached)
@@ -221,9 +212,9 @@ void PeripheralWinrt::GetDescriptorFromCharacteristic(
                 if (descriptor.HasCurrent())
                 {
                     GattDescriptor d = descriptor.Current();
-                    UUID characteristicUuid = characteristic.Uuid();
-                    UUID descriptorUuid = d.Uuid();
-                    UUID serviceUuid = characteristic.Service().Uuid();
+                    winrt::guid characteristicUuid = characteristic.Uuid();
+                    winrt::guid descriptorUuid = d.Uuid();
+                    winrt::guid serviceUuid = characteristic.Service().Uuid();
                     CachedService& cachedService = cachedServices[serviceUuid];
                     CachedCharacteristic& c = cachedService.characterisitics[characteristicUuid];
                     c.descriptors.insert(std::make_pair(descriptorUuid, d));
@@ -243,7 +234,8 @@ void PeripheralWinrt::GetDescriptorFromCharacteristic(
         });
 }
 
-void PeripheralWinrt::GetDescriptor(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid,
+void PeripheralWinrt::GetDescriptor(winrt::guid serviceUuid, winrt::guid characteristicUuid,
+                                    winrt::guid descriptorUuid,
                                     std::function<void(std::optional<GattDescriptor>)> callback)
 {
     auto it = cachedServices.find(serviceUuid);

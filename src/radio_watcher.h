@@ -14,6 +14,7 @@
 using namespace winrt::Windows::Devices::Enumeration;
 
 using winrt::Windows::Devices::Radios::Radio;
+using winrt::Windows::Devices::Radios::IRadio;
 using winrt::Windows::Devices::Radios::RadioState;
 using winrt::Windows::Foundation::IAsyncOperation;
 using winrt::Windows::Foundation::IInspectable;
@@ -54,5 +55,6 @@ private:
     int initialCount;
     std::set<winrt::hstring> radioIds;
     Radio mRadio;
+    winrt::event_revoker<IRadio> mRadioStateChangedRevoker;
     std::function<void(Radio& radio)> radioStateChanged;
 };

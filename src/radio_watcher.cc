@@ -50,7 +50,12 @@ IAsyncOperation<Radio> RadioWatcher::GetRadios(std::set<winrt::hstring> ids)
             auto radio = co_await Radio::FromIdAsync(id);
             if (radio && radio.Kind() == RadioKind::Bluetooth)
             {
-                bluetooth = radio;
+                auto state = radio.State();
+                // we only get state changes for turned on/off adapter but not for disabled adapter
+                if (state == RadioState::On || state == RadioState::Off)
+                {
+                  bluetooth = radio;
+                }
             }
         }
         catch (...)
@@ -72,11 +77,21 @@ void RadioWatcher::OnRadioChanged()
             {
                 if (radio)
                 {
-                    radio.StateChanged([=](Radio radio, auto&&) { radioStateChanged(radio); });
+                    mRadioStateChangedRevoker.revoke();
+                    mRadioStateChangedRevoker = radio.StateChanged(winrt::auto_revoke, [=](Radio radio, auto&&) { radioStateChanged(radio); });
+                }
+                else
+                {
+                    mRadioStateChangedRevoker.revoke();
                 }
                 radioStateChanged(radio);
                 mRadio = radio;
             }
+        }
+        else {
+          mRadio = nullptr;
+          mRadioStateChangedRevoker.revoke();
+          radioStateChanged(mRadio);
         }
     });
 }

@@ -17,14 +17,7 @@ using winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceSer
 #include <optional>
 
 #include "peripheral.h"
-
-namespace std
-{
-    template <> struct hash<UUID>
-    {
-        std::size_t operator()(const UUID& k) const;
-    };
-}
+#include "winrt_guid.h"
 
 class CachedCharacteristic
 {
@@ -35,7 +28,7 @@ public:
     }
 
     GattCharacteristic characteristic = nullptr;
-    std::unordered_map<UUID, GattDescriptor> descriptors;
+    std::unordered_map<winrt::guid, GattDescriptor> descriptors;
 };
 
 class CachedService
@@ -47,7 +40,7 @@ public:
     }
 
     GattDeviceService service = nullptr;
-    std::unordered_map<UUID, CachedCharacteristic> characterisitics;
+    std::unordered_map<winrt::guid, CachedCharacteristic> characterisitics;
 };
 
 class PeripheralWinrt : public Peripheral
@@ -62,11 +55,12 @@ public:
 
     void Disconnect();
 
-    void GetService(UUID serviceUuid,
+    void GetService(winrt::guid serviceUuid,
                     std::function<void(std::optional<GattDeviceService>)> callback);
-    void GetCharacteristic(UUID serviceUuid, UUID characteristicUuid,
+    void GetCharacteristic(winrt::guid serviceUuid, winrt::guid characteristicUuid,
                            std::function<void(std::optional<GattCharacteristic>)> callback);
-    void GetDescriptor(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid,
+    void GetDescriptor(winrt::guid serviceUuid, winrt::guid characteristicUuid,
+                       winrt::guid descriptorUuid,
                        std::function<void(std::optional<GattDescriptor>)> callback);
 
     int rssi;
@@ -75,13 +69,13 @@ public:
     winrt::event_token connectionToken;
 
 private:
-    void GetServiceFromDevice(UUID serviceUuid,
+    void GetServiceFromDevice(winrt::guid serviceUuid,
                               std::function<void(std::optional<GattDeviceService>)> callback);
     void
-    GetCharacteristicFromService(GattDeviceService service, UUID characteristicUuid,
+    GetCharacteristicFromService(GattDeviceService service, winrt::guid characteristicUuid,
                                  std::function<void(std::optional<GattCharacteristic>)> callback);
     void
-    GetDescriptorFromCharacteristic(GattCharacteristic characteristic, UUID descriptorUuid,
+    GetDescriptorFromCharacteristic(GattCharacteristic characteristic, winrt::guid descriptorUuid,
                                     std::function<void(std::optional<GattDescriptor>)> callback);
-    std::unordered_map<UUID, CachedService> cachedServices;
+    std::unordered_map<winrt::guid, CachedService> cachedServices;
 };
