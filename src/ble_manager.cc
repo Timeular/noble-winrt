@@ -49,9 +49,11 @@ template <typename O, typename M, class... Types> auto bind2(O* object, M method
         return;                                          \
     }                                                    \
     auto _commStatus = _result.Status();                 \
+    auto _protError  = _result.ProtocolError();          \
     if (_commStatus != GattCommunicationStatus::Success) \
     {                                                    \
         LOGE("communication status: %d", _commStatus);   \
+        LOGE("protocol error: %d", _protError);          \
         return;                                          \
     }
 
@@ -72,10 +74,10 @@ BLEManager::BLEManager(const Napi::Value& receiver, const Napi::Function& callba
     auto onRadio = std::bind(&BLEManager::OnRadio, this, std::placeholders::_1);
     mWatcher.Start(onRadio);
     mAdvertismentWatcher.ScanningMode(BluetoothLEScanningMode::Active);
-    auto onReceived = bind2(this, &BLEManager::OnScanResult);
+    auto onReceived  = bind2(this, &BLEManager::OnScanResult);
     mReceivedRevoker = mAdvertismentWatcher.Received(winrt::auto_revoke, onReceived);
-    auto onStopped = bind2(this, &BLEManager::OnScanStopped);
-    mStoppedRevoker = mAdvertismentWatcher.Stopped(winrt::auto_revoke, onStopped);
+    auto onStopped   = bind2(this, &BLEManager::OnScanStopped);
+    mStoppedRevoker  = mAdvertismentWatcher.Stopped(winrt::auto_revoke, onStopped);
 }
 
 const char* adapterStateToString(AdapterState state)
