@@ -1,11 +1,12 @@
 {
   "name": "noble-winrt",
   "description": "Noble (Node.js Bluetooth LE) bindings for Windows 10",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "gv@timeular.com",
+  "contributors": ["Yuriy Ackermann <yuriy@fidoalliance.org>"],
   "license": "MIT",
   "repository": {
-    "url": "https://github.com/Timeular/noble-winrt.git"
+    "url": "https://github.com/fido-alliance/noble-winrt.git"
   },
   "main": "index.js",
   "gypfile": true,
