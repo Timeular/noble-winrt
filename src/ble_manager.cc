@@ -460,6 +460,7 @@ void BLEManager::OnRead(IAsyncOperation<GattReadResult> asyncOp, AsyncStatus sta
                 auto& reader = DataReader::FromBuffer(value);
                 Data data(reader.UnconsumedBufferLength());
                 reader.ReadBytes(data);
+                mEmit.Read(uuid, serviceId, characteristicId, data, false);
             }
             else
             {
@@ -818,6 +819,7 @@ void BLEManager::OnReadHandle(IAsyncOperation<GattReadResult> asyncOp, AsyncStat
                 auto& reader = DataReader::FromBuffer(value);
                 Data data(reader.UnconsumedBufferLength());
                 reader.ReadBytes(data);
+                mEmit.ReadHandle(uuid, handle, data);
             }
             else
             {
