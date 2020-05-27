@@ -1,7 +1,7 @@
 {
   "name": "noble-winrt",
   "description": "Noble (Node.js Bluetooth LE) bindings for Windows 10",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "gv@timeular.com",
   "contributors": ["Yuriy Ackermann <yuriy@fidoalliance.org>"],
   "license": "MIT",
