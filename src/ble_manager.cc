@@ -280,7 +280,7 @@ void BLEManager::OnServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> 
 {
     std::vector<std::string> serviceUuids;
     if (status == AsyncStatus::Completed)
-    {
+    { 
         GattDeviceServicesResult& result = asyncOp.GetResults();
         if(CHECK_RESULT(result))
         {
@@ -293,7 +293,7 @@ void BLEManager::OnServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> 
                 }
             }
         }
-        else 
+        else
         {
             LOGE("GattDeviceServicesResult:: failed to discover any services.");
         }

@@ -103,7 +103,6 @@ void Emit::Scan(const std::string& uuid, int rssi, const Peripheral& peripheral)
     auto serviceData      = peripheral.serviceData;
     auto serviceUuids     = peripheral.serviceUuids;
 
-    // wprintf(L"name %s", name);
     mCallback->call([uuid, rssi, address, addressType, connectable, name, txPowerLevel,
                      manufacturerData, serviceData,
                      serviceUuids](Napi::Env env, std::vector<napi_value>& args) {
