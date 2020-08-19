@@ -521,7 +521,10 @@ void BLEManager::OnWrite(IAsyncOperation<GattWriteResult> asyncOp, AsyncStatus s
     }
     else
     {
-        LOGE("status: %d", status);
+        auto errorCode = asyncOp.ErrorCode().value;
+
+        LOGE("status lol: %d", status);
+        LOGE("GattWriteError: %d", errorCode);
     }
 }
 
