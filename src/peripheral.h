@@ -15,7 +15,7 @@ public:
     std::string address     = "unknown";
     AddressType addressType = UNKNOWN;
     bool connectable        = false;
-    std::string name;
+    std::string name        = "unknown";
     int txPowerLevel;
     Data manufacturerData;
     std::vector<std::pair<std::string, Data>> serviceData;
