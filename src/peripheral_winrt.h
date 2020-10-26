@@ -51,7 +51,7 @@ public:
                     int rssiValue, const BluetoothLEAdvertisement& advertisment);
     ~PeripheralWinrt();
 
-    void Update(int rssiValue, const BluetoothLEAdvertisement& advertisment);
+    void Update(int rssiValue, const BluetoothLEAdvertisement& advertisment, const BluetoothLEAdvertisementType& advertismentType);
 
     void Disconnect();
 
