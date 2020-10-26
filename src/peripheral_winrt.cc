@@ -19,9 +19,7 @@ PeripheralWinrt::PeripheralWinrt(uint64_t bluetoothAddress,
     address = formatBluetoothAddress(bluetoothAddress);
     // Random addresses have the two most-significant bits set of the 48-bit address.
     addressType = (bluetoothAddress >= 211106232532992) ? RANDOM : PUBLIC;
-    connectable = advertismentType == BluetoothLEAdvertisementType::ConnectableUndirected ||
-        advertismentType == BluetoothLEAdvertisementType::ConnectableDirected;
-    Update(rssiValue, advertisment);
+    Update(rssiValue, advertisment, advertismentType);
 }
 
 PeripheralWinrt::~PeripheralWinrt()
@@ -32,13 +30,16 @@ PeripheralWinrt::~PeripheralWinrt()
     }
 }
 
-void PeripheralWinrt::Update(const int rssiValue, const BluetoothLEAdvertisement& advertisment)
+void PeripheralWinrt::Update(const int rssiValue, const BluetoothLEAdvertisement& advertisment, const BluetoothLEAdvertisementType& advertismentType)
 {
     std::string localName = ws2s(advertisment.LocalName().c_str());
     if (!localName.empty())
     {
         name = localName;
     }
+
+    connectable = advertismentType == BluetoothLEAdvertisementType::ConnectableUndirected ||
+        advertismentType == BluetoothLEAdvertisementType::ConnectableDirected;
 
     manufacturerData.clear();
     for (auto& ds : advertisment.DataSections())

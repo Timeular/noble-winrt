@@ -148,7 +148,7 @@ void BLEManager::OnScanResult(BluetoothLEAdvertisementWatcher watcher,
     else
     {
         PeripheralWinrt& peripheral = mDeviceMap[uuid];
-        peripheral.Update(rssi, args.Advertisement());
+        peripheral.Update(rssi, args.Advertisement(), advertismentType);
         if (mAllowDuplicates || mAdvertismentMap.find(uuid) == mAdvertismentMap.end())
         {
             mAdvertismentMap.insert(uuid);
