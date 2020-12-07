@@ -4,11 +4,11 @@
   "version": "0.1.0",
   "author": "gv@timeular.com",
   "contributors": [
-    "Yuriy Ackermann <yuriy@fidoalliance.org>"
+    "Yuriy Ackermann <yuriy@fidoalliance.org> <ackermann.yuriy@gmail.com> @herrjemand"
   ],
   "license": "MIT",
   "repository": {
-    "url": "https://github.com/fido-alliance/noble-winrt.git"
+    "url": "https://github.com/Timeular/noble-winrt.git"
   },
   "main": "index.js",
   "gypfile": true,
