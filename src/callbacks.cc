@@ -98,7 +98,6 @@ void Emit::Scan(const std::string& uuid, int rssi, const Peripheral& peripheral)
     auto addressType      = peripheral.addressType;
     auto connectable      = peripheral.connectable;
     auto name             = peripheral.name;
-    printf("CHECKING NAME ::SCAN: %s \n", name.c_str());
     auto txPowerLevel     = peripheral.txPowerLevel;
     auto manufacturerData = peripheral.manufacturerData;
     auto serviceData      = peripheral.serviceData;
