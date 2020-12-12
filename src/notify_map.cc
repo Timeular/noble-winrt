@@ -23,12 +23,12 @@ bool NotifyMap::IsSubscribed(std::string uuid, GattCharacteristic characteristic
 {
     try
     {
-      Key key = { uuid, characteristic.Service().Uuid(), characteristic.Uuid() };
-      return mNotifyMap.find(key) != mNotifyMap.end();
+        Key key = { uuid, characteristic.Service().Uuid(), characteristic.Uuid() };
+        return mNotifyMap.find(key) != mNotifyMap.end();
     }
     catch (...)
     {
-      return false;
+        return false;
     }
 }
 
