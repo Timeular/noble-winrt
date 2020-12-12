@@ -30,7 +30,8 @@ PeripheralWinrt::~PeripheralWinrt()
     }
 }
 
-void PeripheralWinrt::Update(const int rssiValue, const BluetoothLEAdvertisement& advertisment, const BluetoothLEAdvertisementType& advertismentType)
+void PeripheralWinrt::Update(const int rssiValue, const BluetoothLEAdvertisement& advertisment,
+                             const BluetoothLEAdvertisementType& advertismentType)
 {
     std::string localName = ws2s(advertisment.LocalName().c_str());
     if (!localName.empty())

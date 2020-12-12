@@ -12,9 +12,9 @@ enum AddressType
 class Peripheral
 {
 public:
-    std::string address     = "unknown";
+    std::string address = "unknown";
     AddressType addressType = UNKNOWN;
-    bool connectable        = false;
+    bool connectable = false;
     std::string name;
     int txPowerLevel;
     Data manufacturerData;

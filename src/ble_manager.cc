@@ -179,7 +179,8 @@ bool BLEManager::Connect(const std::string& uuid)
     if (!peripheral.device.has_value())
     {
         auto completed = bind2(this, &BLEManager::OnConnected, uuid);
-        BluetoothLEDevice::FromBluetoothAddressAsync(peripheral.bluetoothAddress).Completed(completed);
+        BluetoothLEDevice::FromBluetoothAddressAsync(peripheral.bluetoothAddress)
+            .Completed(completed);
     }
     else
     {

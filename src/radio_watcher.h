@@ -14,8 +14,8 @@
 
 using namespace winrt::Windows::Devices::Enumeration;
 
-using winrt::Windows::Devices::Radios::Radio;
 using winrt::Windows::Devices::Radios::IRadio;
+using winrt::Windows::Devices::Radios::Radio;
 using winrt::Windows::Devices::Radios::RadioState;
 using winrt::Windows::Foundation::IAsyncOperation;
 using winrt::Windows::Foundation::IInspectable;
