@@ -162,13 +162,19 @@ Napi::Value NobleWinrt::Read(const Napi::CallbackInfo& info)
 Napi::Value NobleWinrt::Write(const Napi::CallbackInfo& info)
 {
     CHECK_MANAGER()
-    ARG5(String, String, String, Buffer, Boolean)
-    auto uuid = info[0].As<Napi::String>().Utf8Value();
-    auto service = napiToUuid(info[1].As<Napi::String>());
+    ARG4(String, String, String, Buffer) // Technically 5, but practically withoutResponse can be NULL/Undefined
+    auto uuid           = info[0].As<Napi::String>().Utf8Value();
+    auto service        = napiToUuid(info[1].As<Napi::String>());
     auto characteristic = napiToUuid(info[2].As<Napi::String>());
-    auto data = napiToData(info[3].As<Napi::Buffer<unsigned char>>());
-    auto withoutResponse = info[4].As<Napi::Boolean>().Value();
+    auto data           = napiToData(info[3].As<Napi::Buffer<unsigned char>>());
+    
+    auto withoutResponse = false;
+    if(info[4] && !(info[4].IsNull() || info[4].IsUndefined())) {
+        withoutResponse = info[4].As<Napi::Boolean>().Value();
+    }
+    
     manager->Write(uuid, service, characteristic, data, withoutResponse);
+    
     return Napi::Value();
 }
 
