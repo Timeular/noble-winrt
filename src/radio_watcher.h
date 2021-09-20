@@ -7,14 +7,15 @@
 
 #pragma once
 
+#include <functional>
 #include <set>
 #include <winrt/Windows.Devices.Enumeration.h>
 #include <winrt/Windows.Devices.Radios.h>
 
 using namespace winrt::Windows::Devices::Enumeration;
 
-using winrt::Windows::Devices::Radios::Radio;
 using winrt::Windows::Devices::Radios::IRadio;
+using winrt::Windows::Devices::Radios::Radio;
 using winrt::Windows::Devices::Radios::RadioState;
 using winrt::Windows::Foundation::IAsyncOperation;
 using winrt::Windows::Foundation::IInspectable;

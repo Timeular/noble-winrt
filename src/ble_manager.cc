@@ -156,7 +156,7 @@ void BLEManager::OnScanResult(BluetoothLEAdvertisementWatcher watcher,
     else
     {
         PeripheralWinrt& peripheral = mDeviceMap[uuid];
-        peripheral.Update(rssi, args.Advertisement());
+        peripheral.Update(rssi, args.Advertisement(), advertismentType);
         if (mAllowDuplicates || mAdvertismentMap.find(uuid) == mAdvertismentMap.end())
         {
             mAdvertismentMap.insert(uuid);
@@ -187,7 +187,8 @@ bool BLEManager::Connect(const std::string& uuid)
     if (!peripheral.device.has_value())
     {
         auto completed = bind2(this, &BLEManager::OnConnected, uuid);
-        BluetoothLEDevice::FromBluetoothAddressAsync(peripheral.bluetoothAddress).Completed(completed);
+        BluetoothLEDevice::FromBluetoothAddressAsync(peripheral.bluetoothAddress)
+            .Completed(completed);
     }
     else
     {
