@@ -43,7 +43,7 @@ template <typename O, typename M, class... Types> auto bind2(O* object, M method
     BluetoothLEDevice& _device = *peripheral.device;
 
 template <class T>
-bool CHECK_RESULT(T _result)
+bool CheckResult(T _result)
 {
     if (!_result)
     {
@@ -282,7 +282,7 @@ void BLEManager::OnServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> 
     if (status == AsyncStatus::Completed)
     { 
         GattDeviceServicesResult& result = asyncOp.GetResults();
-        if(CHECK_RESULT(result))
+        if(CheckResult(result))
         {
             FOR(service, result.Services())
             {
@@ -338,7 +338,7 @@ void BLEManager::OnIncludedServicesDiscovered(IAsyncOperation<GattDeviceServices
     if (status == AsyncStatus::Completed)
     {
         auto& result = asyncOp.GetResults();
-        if(CHECK_RESULT(result))
+        if(CheckResult(result))
         {
             FOR(service, result.Services())
             {
@@ -394,7 +394,7 @@ void BLEManager::OnCharacteristicsDiscovered(IAsyncOperation<GattCharacteristics
     if (status == AsyncStatus::Completed)
     {
         auto& result = asyncOp.GetResults();
-        if(CHECK_RESULT(result))
+        if(CheckResult(result))
         {
             FOR(characteristic, result.Characteristics())
             {
@@ -452,7 +452,7 @@ void BLEManager::OnRead(IAsyncOperation<GattReadResult> asyncOp, AsyncStatus sta
     if (status == AsyncStatus::Completed)
     {
         GattReadResult& result = asyncOp.GetResults();
-        if(CHECK_RESULT(result))
+        if(CheckResult(result))
         {
             auto& value = result.Value();
             if (value)
@@ -523,7 +523,7 @@ void BLEManager::OnWrite(IAsyncOperation<GattWriteResult> asyncOp, AsyncStatus s
     {
         auto errorCode = asyncOp.ErrorCode().value;
 
-        LOGE("status lol: %d", status);
+        LOGE("Write:Status: %d", status);
         LOGE("GattWriteError: %d", errorCode);
     }
 }
@@ -670,7 +670,7 @@ void BLEManager::OnDescriptorsDiscovered(IAsyncOperation<GattDescriptorsResult> 
     if (status == AsyncStatus::Completed)
     {
         auto& result = asyncOp.GetResults();
-        if(CHECK_RESULT(result))
+        if(CheckResult(result))
         {
             FOR(descriptor, result.Descriptors())
             {
@@ -725,7 +725,7 @@ void BLEManager::OnReadValue(IAsyncOperation<GattReadResult> asyncOp, AsyncStatu
     if (status == AsyncStatus::Completed)
     {
         GattReadResult& result = asyncOp.GetResults();
-        if(CHECK_RESULT(result))
+        if(CheckResult(result))
         {
             auto& value = result.Value();
             if (value)
@@ -793,7 +793,7 @@ void BLEManager::OnWriteValue(IAsyncOperation<GattWriteResult> asyncOp, AsyncSta
     }
     else
     {
-        LOGE("status: %d", status);
+        LOGE("WriteValue:Status: %d", status);
     }
 }
 
@@ -814,7 +814,7 @@ void BLEManager::OnReadHandle(IAsyncOperation<GattReadResult> asyncOp, AsyncStat
     if (status == AsyncStatus::Completed)
     {
         GattReadResult& result = asyncOp.GetResults();
-        if(CHECK_RESULT(result))
+        if(CheckResult(result))
         {
             auto& value = result.Value();
             if (value)
