@@ -111,10 +111,18 @@ void Emit::Scan(const std::string& uuid, int rssi, const Peripheral& peripheral)
         {
             advertisment.Set(_s("localName"), _s(name));
         }
+        else
+        {
+            advertisment.Set(_s("localName"), NULL);
+        }
         advertisment.Set(_s("txPowerLevel"), txPowerLevel);
         if(!manufacturerData.empty())
         {
             advertisment.Set(_s("manufacturerData"), toBuffer(env, manufacturerData));
+        }
+        else
+        {
+            advertisment.Set(_s("manufacturerData"), toBuffer(env, NULL));
         }
         if(!serviceData.empty())
         {
@@ -128,9 +136,17 @@ void Emit::Scan(const std::string& uuid, int rssi, const Peripheral& peripheral)
             }
             advertisment.Set(_s("serviceData"), array);
         }
+        else
+        {
+            advertisment.Set(_s("serviceData"), NULL);
+        }
         if(!serviceUuids.empty())
         {
             advertisment.Set(_s("serviceUuids"), toUuidArray(env, serviceUuids));
+        }
+        else
+        {
+            advertisment.Set(_s("serviceUuids"), toUuidArray(env, NULL));
         }
         // emit('discover', deviceUuid, address, addressType, connectable, advertisement, rssi);
         args = { _s("discover"),  _u(uuid),     _s(address), toAddressType(env, addressType),
