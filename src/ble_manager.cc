@@ -71,11 +71,6 @@ BLEManager::BLEManager(const Napi::Value& receiver, const Napi::Function& callba
     mEmit.Wrap(receiver, callback);
     auto onRadio = std::bind(&BLEManager::OnRadio, this, std::placeholders::_1);
     mWatcher.Start(onRadio);
-    mAdvertismentWatcher.ScanningMode(BluetoothLEScanningMode::Active);
-    auto onReceived = bind2(this, &BLEManager::OnScanResult);
-    mReceivedRevoker = mAdvertismentWatcher.Received(winrt::auto_revoke, onReceived);
-    auto onStopped = bind2(this, &BLEManager::OnScanStopped);
-    mStoppedRevoker = mAdvertismentWatcher.Stopped(winrt::auto_revoke, onStopped);
 }
 
 const char* adapterStateToString(AdapterState state)
@@ -116,16 +111,37 @@ void BLEManager::Scan(const std::vector<winrt::guid>& serviceUUIDs, bool allowDu
 {
     mAdvertismentMap.clear();
     mAllowDuplicates = allowDuplicates;
-    BluetoothLEAdvertisementFilter filter = BluetoothLEAdvertisementFilter();
-    BluetoothLEAdvertisement advertisment = BluetoothLEAdvertisement();
-    auto& services = advertisment.ServiceUuids();
-    for (auto& uuid : serviceUUIDs)
+    if(serviceUUIDs.empty())
     {
-        services.Append(uuid);
+        BluetoothLEAdvertisementWatcher watcher = BluetoothLEAdvertisementWatcher();
+        watcher.ScanningMode(BluetoothLEScanningMode::Active);
+        auto onReceived = bind2(this, &BLEManager::OnScanResult);
+        mReceivedRevokers.push_back(watcher.Received(winrt::auto_revoke, onReceived));
+        auto onStopped = bind2(this, &BLEManager::OnScanStopped);
+        mStoppedRevokers.push_back(watcher.Stopped(winrt::auto_revoke, onStopped));
+        watcher.Start();
+        mAdvertismentWatchers.push_back(watcher);
     }
-    filter.Advertisement(advertisment);
-    mAdvertismentWatcher.AdvertisementFilter(filter);
-    mAdvertismentWatcher.Start();
+    else
+    {
+        for (auto& uuid : serviceUUIDs)
+        {
+            BluetoothLEAdvertisementWatcher watcher = BluetoothLEAdvertisementWatcher();
+            BluetoothLEAdvertisementFilter filter = BluetoothLEAdvertisementFilter();
+            BluetoothLEAdvertisement advertisment = BluetoothLEAdvertisement();
+            advertisment.ServiceUuids().Append(uuid);
+            filter.Advertisement(advertisment);
+            watcher.ScanningMode(BluetoothLEScanningMode::Active);
+            auto onReceived = bind2(this, &BLEManager::OnScanResult);
+            mReceivedRevokers.push_back(watcher.Received(winrt::auto_revoke, onReceived));
+            auto onStopped = bind2(this, &BLEManager::OnScanStopped);
+            mStoppedRevokers.push_back(watcher.Stopped(winrt::auto_revoke, onStopped));
+            watcher.AdvertisementFilter(filter);
+            watcher.Start();
+            mAdvertismentWatchers.push_back(watcher);
+        }
+    }
+    
     mEmit.ScanState(true);
 }
 
@@ -159,7 +175,10 @@ void BLEManager::OnScanResult(BluetoothLEAdvertisementWatcher watcher,
 
 void BLEManager::StopScan()
 {
-    mAdvertismentWatcher.Stop();
+    for(auto const & watcher : mAdvertismentWatchers)
+    {
+        watcher.Stop();
+    }
 }
 
 void BLEManager::OnScanStopped(BluetoothLEAdvertisementWatcher watcher,
