@@ -111,6 +111,19 @@ void BLEManager::Scan(const std::vector<winrt::guid>& serviceUUIDs, bool allowDu
 {
     mAdvertismentMap.clear();
     mAllowDuplicates = allowDuplicates;
+
+    for(auto& mReceivedRevoker : mReceivedRevokers)
+    {
+        mReceivedRevoker.revoke();
+    }
+    for(auto& mStoppedRevoker : mStoppedRevokers)
+    {
+        mStoppedRevoker.revoke();
+    }
+    mAdvertismentWatchers.clear();
+    mReceivedRevokers.clear();
+    mStoppedRevokers.clear();
+
     if(serviceUUIDs.empty())
     {
         BluetoothLEAdvertisementWatcher watcher = BluetoothLEAdvertisementWatcher();
